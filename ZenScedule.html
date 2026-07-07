@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Campus VR Scheduler</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      color: white;
+      background: linear-gradient(135deg, #07152f, #111a4d, #040a1d);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    select,
+    input {
+      font-family: inherit;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(18px);
+      border-radius: 22px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(5, 12, 31, 0.8);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .nav-content {
+      height: 75px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #6c63ff, #00c9a7);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      color: #cfd6ee;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #6c63ff, #8b5cff);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 35px rgba(108, 99, 255, 0.35);
+    }
+
+    .btn.secondary {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .hero {
+      min-height: calc(100vh - 75px);
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 50px;
+      align-items: center;
+      padding: 70px 0;
+    }
+
+    .tag {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 16px;
+      margin-bottom: 20px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #dfe5ff;
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 6vw, 78px);
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+
+    .hero p,
+    .muted {
+      color: #b9c3d9;
+      line-height: 1.8;
+    }
+
+    .hero p {
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .hero-card {
+      min-height: 430px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .campus {
+      position: absolute;
+      inset: 50px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 90px;
+      gap: 18px;
+      transform: perspective(900px) rotateX(58deg) rotateZ(-32deg);
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .building {
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.07));
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .building:nth-child(2) {
+      grid-row: span 2;
+      background: linear-gradient(135deg, #6c63ff, rgba(0, 201, 167, 0.35));
+    }
+
+    .building:nth-child(5) {
+      grid-column: span 2;
+      background: linear-gradient(135deg, #ff6584, rgba(255,255,255,0.12));
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: perspective(900px) rotateX(58deg) rotateZ(-32deg) translateY(0);
+      }
+
+      50% {
+        transform: perspective(900px) rotateX(58deg) rotateZ(-32deg) translateY(-18px);
+      }
+    }
+
+    section {
+      padding: 80px 0;
+    }
+
+    .section-title {
+      font-size: 42px;
+      margin-bottom: 15px;
+    }
+
+    .section-text {
+      color: #b9c3d9;
+      max-width: 820px;
+      line-height: 1.8;
+      margin-bottom: 35px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 22px;
+    }
+
+    .card {
+      padding: 24px;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+    }
+
+    .card i {
+      font-size: 30px;
+      color: #00c9a7;
+      margin-bottom: 15px;
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+    }
+
+    .login-section {
+      display: grid;
+      place-items: center;
+    }
+
+    .login-card {
+      width: min(460px, 95%);
+      padding: 32px;
+    }
+
+    .roles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .roles label {
+      padding: 14px;
+      text-align: center;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      cursor: pointer;
+    }
+
+    .roles input {
+      display: none;
+    }
+
+    .roles label:has(input:checked) {
+      outline: 2px solid #00c9a7;
+      background: rgba(0, 201, 167, 0.18);
+    }
+
+    .input-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 0 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .input-box input {
+      width: 100%;
+      height: 50px;
+      border: none;
+      outline: none;
+      color: white;
+      background: transparent;
+    }
+
+    .login-options {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      color: #cfd6ee;
+      font-size: 14px;
+    }
+
+    .dashboard {
+      display: none;
+      padding: 40px 0 80px;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .stat {
+      padding: 22px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 34px;
+      margin-top: 8px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 0.6fr;
+      gap: 22px;
+      margin-bottom: 35px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+
+    th {
+      color: #e7ebff;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(0, 201, 167, 0.18);
+      color: #bffbed;
+      font-size: 13px;
+    }
+
+    .badge.warning {
+      background: rgba(255, 200, 87, 0.18);
+      color: #ffe5a2;
+    }
+
+    .notification {
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .navigation-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .map-box {
+      min-height: 360px;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .map-box select {
+      width: 100%;
+      height: 48px;
+      margin: 15px 0;
+      padding: 0 12px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      color: #111a4d;
+      font-weight: 600;
+    }
+
+    .navigation-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .info-box {
+      padding: 16px;
+      text-align: center;
+    }
+
+    .info-box strong {
+      display: block;
+      font-size: 22px;
+      margin-top: 5px;
+    }
+
+    .fake-map {
+      height: 260px;
+      border-radius: 18px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(135deg, rgba(108,99,255,0.35), rgba(0,201,167,0.18));
+      background-size: 40px 40px;
+      position: relative;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    .route-line {
+      position: absolute;
+      left: 50px;
+      top: 160px;
+      width: 260px;
+      height: 8px;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #00c9a7, #ff6584);
+      transform: rotate(-18deg);
+      box-shadow: 0 0 25px rgba(0, 201, 167, 0.7);
+    }
+
+    .location-dot,
+    .destination-dot {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+    }
+
+    .location-dot {
+      left: 45px;
+      top: 150px;
+      background: #00c9a7;
+      box-shadow: 0 0 20px #00c9a7;
+    }
+
+    .destination-dot {
+      right: 60px;
+      top: 65px;
+      background: #ff6584;
+      box-shadow: 0 0 20px #ff6584;
+    }
+
+    .indoor-map {
+      height: 300px;
+      border-radius: 18px;
+      margin-top: 20px;
+      position: relative;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      overflow: hidden;
+    }
+
+    .room {
+      position: absolute;
+      padding: 10px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 14px;
+      background: rgba(255,255,255,0.13);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .room.a101 {
+      left: 25px;
+      top: 25px;
+      width: 100px;
+      height: 75px;
+    }
+
+    .room.b205 {
+      right: 25px;
+      top: 35px;
+      width: 110px;
+      height: 85px;
+      background: rgba(0, 201, 167, 0.25);
+      border-color: #00c9a7;
+    }
+
+    .room.lab {
+      left: 40px;
+      bottom: 35px;
+      width: 120px;
+      height: 80px;
+    }
+
+    .room.library {
+      right: 35px;
+      bottom: 35px;
+      width: 120px;
+      height: 80px;
+    }
+
+    .indoor-path {
+      position: absolute;
+      left: 90px;
+      top: 150px;
+      width: 220px;
+      height: 8px;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #6c63ff, #00c9a7);
+      box-shadow: 0 0 18px rgba(0, 201, 167, 0.6);
+    }
+
+    .arrow {
+      position: absolute;
+      left: 190px;
+      top: 132px;
+      font-size: 32px;
+      color: #00c9a7;
+      animation: moveArrow 1s infinite alternate;
+    }
+
+    @keyframes moveArrow {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(18px);
+      }
+    }
+
+    .vr-wrapper {
+      position: relative;
+    }
+
+    .vr-scene-box {
+      height: 620px;
+      overflow: hidden;
+      padding: 0;
+      position: relative;
+    }
+
+    .vr-scene-box a-scene {
+      height: 620px;
+      width: 100%;
+      border-radius: 22px;
+    }
+
+    .vr-control-panel {
+      position: absolute;
+      z-index: 5;
+      left: 18px;
+      bottom: 18px;
+      width: min(340px, calc(100% - 36px));
+      padding: 16px;
+    }
+
+    .vr-control-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .vr-control-grid button {
+      min-height: 46px;
+      border-radius: 12px;
+      border: 0;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .vr-control-grid button:hover {
+      background: #00c9a7;
+    }
+
+    .vr-step {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #dfe5ff;
+    }
+
+    .vr-note {
+      margin-top: 15px;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    footer {
+      padding: 30px 0;
+      color: #b9c3d9;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .dashboard-grid,
+      .navigation-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .grid,
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .grid,
+      .stats,
+      .roles,
+      .navigation-info {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+
+      .vr-scene-box,
+      .vr-scene-box a-scene {
+        height: 520px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="container nav-content">
+      <a href="#" class="logo">
+        <span class="logo-icon">
+          <i class="fa-solid fa-vr-cardboard"></i>
+        </span>
+        SmartCampusVR
+      </a>
+
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#login">Login</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="homePage">
+    <section class="container hero">
+      <div>
+        <span class="tag">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          AI Powered Smart Class Rescheduling & Navigation
+        </span>
+
+        <h1>Smart Campus VR Scheduler</h1>
+
+        <p>
+          A modern campus system where teachers can reschedule classes,
+          students get instant updates, and everyone can navigate through
+          maps, indoor routes, and a movable 3D VR college campus.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#login" class="btn">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Login
+          </a>
+          <a href="#features" class="btn secondary">View Features</a>
+        </div>
+      </div>
+
+      <div class="hero-card glass">
+        <div class="campus">
+          <span class="building"></span>
+          <span class="building"></span>
+          <span class="building"></span>
+          <span class="building"></span>
+          <span class="building"></span>
+          <span class="building"></span>
+          <span class="building"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="container">
+      <h2 class="section-title">Main Features</h2>
+      <p class="section-text">
+        A clean dashboard system with smart scheduling, live-style navigation,
+        indoor maps, notifications, attendance, analytics, and 3D VR campus movement.
+      </p>
+
+      <div class="grid">
+        <div class="card glass">
+          <i class="fa-solid fa-calendar-days"></i>
+          <h3>Smart Scheduler</h3>
+          <p class="muted">Finds free rooms, avoids conflicts, and suggests the best slot.</p>
+        </div>
+
+        <div class="card glass">
+          <i class="fa-solid fa-bell"></i>
+          <h3>Notifications</h3>
+          <p class="muted">Students receive instant updates when class time or room changes.</p>
+        </div>
+
+        <div class="card glass">
+          <i class="fa-solid fa-map-location-dot"></i>
+          <h3>Real Navigation</h3>
+          <p class="muted">Shows destination room, distance, estimated walking time, and route.</p>
+        </div>
+
+        <div class="card glass">
+          <i class="fa-solid fa-vr-cardboard"></i>
+          <h3>3D VR Campus</h3>
+          <p class="muted">Click direction arrows to move through a real college-like 3D campus.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="login" class="login-section container">
+      <form class="login-card glass" onsubmit="loginUser(event)">
+        <h2>Login</h2>
+        <p class="muted">Choose your role and enter demo details.</p>
+
+        <div class="roles">
+          <label>
+            <input type="radio" name="role" value="Student" checked>
+            <i class="fa-solid fa-user-graduate"></i>
+            <br>Student
+          </label>
+
+          <label>
+            <input type="radio" name="role" value="Teacher">
+            <i class="fa-solid fa-chalkboard-user"></i>
+            <br>Teacher
+          </label>
+
+          <label>
+            <input type="radio" name="role" value="Admin">
+            <i class="fa-solid fa-user-shield"></i>
+            <br>Admin
+          </label>
+        </div>
+
+        <div class="input-box">
+          <i class="fa-solid fa-envelope"></i>
+          <input type="email" value="student@campus.edu" required>
+        </div>
+
+        <div class="input-box">
+          <i class="fa-solid fa-lock"></i>
+          <input id="password" type="password" value="campus123" required>
+          <i class="fa-solid fa-eye" onclick="togglePassword()"></i>
+        </div>
+
+        <div class="login-options">
+          <label>
+            <input type="checkbox" checked>
+            Remember me
+          </label>
+          <span>Forgot password?</span>
+        </div>
+
+        <button class="btn" type="submit" style="width: 100%;">
+          Login
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <section id="dashboard" class="dashboard container">
+    <div class="dashboard-header">
+      <div>
+        <h1 id="dashboardTitle">Student Dashboard</h1>
+        <p class="muted">Welcome to your smart campus control center.</p>
+      </div>
+
+      <button class="btn secondary" onclick="logoutUser()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Logout
+      </button>
+    </div>
+
+    <div class="stats">
+      <div class="stat glass">
+        <i class="fa-solid fa-calendar-day"></i>
+        <p>Today's Classes</p>
+        <strong>4</strong>
+      </div>
+
+      <div class="stat glass">
+        <i class="fa-solid fa-clock"></i>
+        <p>Upcoming</p>
+        <strong>7</strong>
+      </div>
+
+      <div class="stat glass">
+        <i class="fa-solid fa-arrows-rotate"></i>
+        <p>Rescheduled</p>
+        <strong>2</strong>
+      </div>
+
+      <div class="stat glass">
+        <i class="fa-solid fa-user-check"></i>
+        <p>Attendance</p>
+        <strong>92%</strong>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="glass card">
+        <h2>Class Timetable</h2>
+        <br>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Teacher</th>
+              <th>Room</th>
+              <th>Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>Machine Learning</td>
+              <td>Dr. Rao</td>
+              <td>A101</td>
+              <td>9:00 AM</td>
+              <td><span class="badge">On Time</span></td>
+            </tr>
+
+            <tr>
+              <td>Cloud Computing</td>
+              <td>Prof. Iyer</td>
+              <td>B205</td>
+              <td>2:00 PM</td>
+              <td><span class="badge warning">Rescheduled</span></td>
+            </tr>
+
+            <tr>
+              <td>Data Visualization</td>
+              <td>Dr. Mehta</td>
+              <td>Lab 1</td>
+              <td>4:00 PM</td>
+              <td><span class="badge">Upcoming</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="glass card">
+        <h2>Notifications</h2>
+        <br>
+
+        <div class="notification">
+          <strong>Room Changed</strong>
+          <p class="muted">Cloud Computing moved to Room B205.</p>
+        </div>
+
+        <div class="notification">
+          <strong>Navigation Reminder</strong>
+          <p class="muted">Leave in 10 minutes to reach your class.</p>
+        </div>
+
+        <div class="notification">
+          <strong>Best Slot Found</strong>
+          <p class="muted">Thursday, 2 PM, Room B205, 96% students available.</p>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2 class="section-title">Real Navigation & Indoor Map</h2>
+      <p class="section-text">
+        Choose your classroom, start navigation, check distance, see estimated walking time,
+        and switch to indoor directions after reaching the building.
+      </p>
+
+      <div class="navigation-layout">
+        <div class="map-box glass">
+          <h2>Real Navigation</h2>
+          <p class="muted">Select a destination classroom and start navigation.</p>
+
+          <select id="destinationRoom" onchange="updateNavigationPreview()">
+            <option value="B205">Room B205 - Innovation Block</option>
+            <option value="A101">Room A101 - Academic Block</option>
+            <option value="LAB1">Lab 1 - Engineering Block</option>
+            <option value="LIBRARY">Library - Main Campus</option>
+          </select>
+
+          <div class="navigation-info">
+            <div class="info-box glass">
+              <span>Distance</span>
+              <strong id="distanceText">--</strong>
+            </div>
+
+            <div class="info-box glass">
+              <span>ETA</span>
+              <strong id="etaText">--</strong>
+            </div>
+
+            <div class="info-box glass">
+              <span>Status</span>
+              <strong id="statusText">Ready</strong>
+            </div>
+          </div>
+
+          <button class="btn" onclick="startNavigation()">
+            <i class="fa-solid fa-location-crosshairs"></i>
+            Start Navigation
+          </button>
+
+          <div class="fake-map">
+            <div class="location-dot"></div>
+            <div class="route-line"></div>
+            <div class="destination-dot"></div>
+          </div>
+        </div>
+
+        <div class="map-box glass">
+          <h2>Indoor Map</h2>
+          <p class="muted">
+            Indoor route with current position, destination room, floor,
+            QR checkpoint, and Bluetooth beacon placeholder.
+          </p>
+
+          <div class="navigation-info">
+            <div class="info-box glass">
+              <span>Floor</span>
+              <strong id="floorText">2</strong>
+            </div>
+
+            <div class="info-box glass">
+              <span>QR</span>
+              <strong>Ready</strong>
+            </div>
+
+            <div class="info-box glass">
+              <span>Beacon</span>
+              <strong>Active</strong>
+            </div>
+          </div>
+
+          <div class="indoor-map">
+            <div class="room a101">A101</div>
+            <div class="room b205" id="highlightRoom">B205</div>
+            <div class="room lab">Lab 1</div>
+            <div class="room library">Library</div>
+            <div class="indoor-path"></div>
+            <div class="arrow">
+              <i class="fa-solid fa-arrow-right"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">3D VR Campus Navigation</h2>
+      <p class="section-text">
+        Click the direction arrows below the VR scene to move forward step by step,
+        like Google Maps Street View. You can also drag your mouse to look around.
+      </p>
+
+      <div class="vr-wrapper">
+        <div class="glass vr-scene-box">
+          <a-scene embedded cursor="rayOrigin: mouse" background="color: #87b8ff">
+            <a-assets>
+              <a-mixin id="window" geometry="primitive: box; width: 0.45; height: 0.55; depth: 0.04" material="color: #bde8ff; metalness: 0.2; roughness: 0.15"></a-mixin>
+            </a-assets>
+
+            <a-entity id="playerRig" position="0 1.7 18" rotation="0 180 0">
+              <a-camera look-controls></a-camera>
+            </a-entity>
+
+            <a-plane position="0 0 0" rotation="-90 0 0" width="90" height="90" color="#4f8f4f"></a-plane>
+
+            <a-box position="0 0.03 4" width="12" height="0.05" depth="70" color="#3b455e"></a-box>
+            <a-box position="0 0.04 -4" width="60" height="0.05" depth="9" color="#3b455e"></a-box>
+
+            <a-box position="0 0.09 4" width="1.2" height="0.05" depth="68" color="#ffffff"></a-box>
+            <a-box position="-3.2 0.1 4" width="0.25" height="0.05" depth="68" color="#ffd166"></a-box>
+            <a-box position="3.2 0.1 4" width="0.25" height="0.05" depth="68" color="#ffd166"></a-box>
+
+            <a-box position="-18 3 -13" width="13" height="6" depth="9" color="#d9e6ff"></a-box>
+            <a-box position="-18 6.4 -13" width="14" height="0.7" depth="10" color="#6c63ff"></a-box>
+            <a-text value="Academic Block A" position="-23 7.2 -8.1" color="#111a4d" width="8"></a-text>
+            <a-text value="A101" position="-20 3.5 -7.9" color="#111a4d" width="5"></a-text>
+
+            <a-box position="16 4 -16" width="15" height="8" depth="10" color="#dffcf7"></a-box>
+            <a-box position="16 8.4 -16" width="16" height="0.8" depth="11" color="#00c9a7"></a-box>
+            <a-text value="Innovation Block B" position="10.2 9.2 -10.8" color="#111a4d" width="8"></a-text>
+            <a-text value="Destination B205" position="11.2 5.2 -10.7" color="#111a4d" width="8"></a-text>
+
+            <a-box
+              id="destinationGlow"
+              position="16 4 -10.7"
+              width="16"
+              height="8"
+              depth="0.2"
+              color="#00c9a7"
+              opacity="0.35"
+              animation="property: opacity; from: 0.25; to: 0.75; dir: alternate; loop: true; dur: 900">
+            </a-box>
+
+            <a-box position="-17 2.7 15" width="14" height="5.4" depth="9" color="#ffd3dc"></a-box>
+            <a-box position="-17 5.8 15" width="15" height="0.7" depth="10" color="#ff6584"></a-box>
+            <a-text value="Engineering Lab" position="-22 6.6 20.1" color="#111a4d" width="8"></a-text>
+            <a-text value="Lab 1" position="-18.2 3.3 20.2" color="#111a4d" width="5"></a-text>
+
+            <a-cylinder position="20 3 14" radius="5" height="6" color="#e8ddff"></a-cylinder>
+            <a-cylinder position="20 6.2 14" radius="5.4" height="0.6" color="#8b5cff"></a-cylinder>
+            <a-text value="Central Library" position="15.4 7.1 19.4" color="#ffffff" width="8"></a-text>
+
+            <a-box position="0 1.3 23" width="12" height="2.6" depth="0.4" color="#111a4d"></a-box>
+            <a-text value="SMART CAMPUS MAIN GATE" position="-5.4 1.45 23.35" color="#ffffff" width="11"></a-text>
+
+            <a-box position="0 0.12 5" width="1.4" height="0.08" depth="34" color="#00c9a7"></a-box>
+            <a-cone
+              id="vrArrow"
+              position="0 0.8 0"
+              rotation="90 0 0"
+              radius-bottom="0.7"
+              height="1.5"
+              color="#ff6584"
+              animation="property: position; to: 0 0.8 -3; dir: alternate; loop: true; dur: 700">
+            </a-cone>
+
+            <a-text id="vrDestinationText" value="Route to B205" position="-4 2.8 3" color="#ffffff" width="8"></a-text>
+
+            <a-entity position="-9 0 5">
+              <a-cylinder radius="0.25" height="3" color="#74491f"></a-cylinder>
+              <a-sphere position="0 2.5 0" radius="1.4" color="#1f9f71"></a-sphere>
+            </a-entity>
+            <a-entity position="9 0 8">
+              <a-cylinder radius="0.25" height="3" color="#74491f"></a-cylinder>
+              <a-sphere position="0 2.5 0" radius="1.4" color="#1f9f71"></a-sphere>
+            </a-entity>
+            <a-entity position="-28 0 -2">
+              <a-cylinder radius="0.25" height="3" color="#74491f"></a-cylinder>
+              <a-sphere position="0 2.5 0" radius="1.4" color="#1f9f71"></a-sphere>
+            </a-entity>
+            <a-entity position="30 0 -3">
+              <a-cylinder radius="0.25" height="3" color="#74491f"></a-cylinder>
+              <a-sphere position="0 2.5 0" radius="1.4" color="#1f9f71"></a-sphere>
+            </a-entity>
+
+            <a-box position="-28 0.8 4" width="0.25" height="1.6" depth="48" color="#ffffff"></a-box>
+            <a-box position="28 0.8 4" width="0.25" height="1.6" depth="48" color="#ffffff"></a-box>
+
+            <a-light type="ambient" intensity="0.8"></a-light>
+            <a-light type="directional" position="0 20 10" intensity="0.9"></a-light>
+            <a-sky color="#87b8ff"></a-sky>
+          </a-scene>
+        </div>
+
+        <div class="vr-control-panel glass">
+          <strong>VR Direction Controls</strong>
+          <p class="vr-step" id="vrStepText">Step 1: Main Gate</p>
+
+          <div class="vr-control-grid">
+            <button onclick="turnLeft()"><i class="fa-solid fa-arrow-left"></i></button>
+            <button onclick="moveForward()"><i class="fa-solid fa-arrow-up"></i></button>
+            <button onclick="turnRight()"><i class="fa-solid fa-arrow-right"></i></button>
+            <button onclick="moveBackward()"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+            <button onclick="resetVRRoute()">Reset</button>
+            <button onclick="jumpToDestination()"><i class="fa-solid fa-location-dot"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="vr-note">
+        <strong>How it works:</strong>
+        <p class="muted">
+          Click the up arrow to move forward step by step through the college campus.
+          Left and right buttons rotate your view. The green route shows the path to the selected classroom.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Smart Campus Tools</h2>
+
+      <div class="grid">
+        <div class="card glass">
+          <i class="fa-solid fa-route"></i>
+          <h3>Route Guidance</h3>
+          <p class="muted">Guides students from current position to selected classroom.</p>
+        </div>
+
+        <div class="card glass">
+          <i class="fa-solid fa-qrcode"></i>
+          <h3>QR Checkpoint</h3>
+          <p class="muted">Students can verify location using QR checkpoints.</p>
+        </div>
+
+        <div class="card glass">
+          <i class="fa-brands fa-bluetooth-b"></i>
+          <h3>Beacon Support</h3>
+          <p class="muted">Bluetooth beacon placeholder for indoor positioning.</p>
+        </div>
+
+        <div class="card glass">
+          <i class="fa-solid fa-chart-line"></i>
+          <h3>Analytics</h3>
+          <p class="muted">View attendance, room usage, and class completion graphs.</p>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <footer id="contact">
+    <div class="container">
+      Smart Campus VR Scheduler | contact@smartcampus.edu
+    </div>
+  </footer>
+
+  <script>
+    const roomData = {
+      B205: {
+        distance: "420 m",
+        eta: "6 min",
+        floor: "2",
+        label: "B205",
+        destinationText: "Route to B205",
+        route: [
+          { label: "Main Gate", position: "0 1.7 18", rotation: "0 180 0" },
+          { label: "Central Road", position: "0 1.7 11", rotation: "0 180 0" },
+          { label: "Fountain Junction", position: "0 1.7 4", rotation: "0 180 0" },
+          { label: "Innovation Block Turn", position: "4 1.7 -2", rotation: "0 135 0" },
+          { label: "Innovation Block Entrance", position: "11 1.7 -8", rotation: "0 120 0" },
+          { label: "Arrived at B205", position: "16 1.7 -10", rotation: "0 90 0" }
+        ]
+      },
+      A101: {
+        distance: "180 m",
+        eta: "3 min",
+        floor: "1",
+        label: "A101",
+        destinationText: "Route to A101",
+        route: [
+          { label: "Main Gate", position: "0 1.7 18", rotation: "0 180 0" },
+          { label: "Central Road", position: "0 1.7 10", rotation: "0 180 0" },
+          { label: "Academic Block Turn", position: "-6 1.7 -2", rotation: "0 225 0" },
+          { label: "Arrived at A101", position: "-15 1.7 -7", rotation: "0 260 0" }
+        ]
+      },
+      LAB1: {
+        distance: "310 m",
+        eta: "5 min",
+        floor: "1",
+        label: "Lab 1",
+        destinationText: "Route to Lab 1",
+        route: [
+          { label: "Main Gate", position: "0 1.7 18", rotation: "0 180 0" },
+          { label: "Garden Road", position: "-5 1.7 13", rotation: "0 225 0" },
+          { label: "Engineering Block Path", position: "-12 1.7 11", rotation: "0 260 0" },
+          { label: "Arrived at Lab 1", position: "-17 1.7 18", rotation: "0 0 0" }
+        ]
+      },
+      LIBRARY: {
+        distance: "550 m",
+        eta: "8 min",
+        floor: "0",
+        label: "Library",
+        destinationText: "Route to Library",
+        route: [
+          { label: "Main Gate", position: "0 1.7 18", rotation: "0 180 0" },
+          { label: "Central Road", position: "0 1.7 10", rotation: "0 180 0" },
+          { label: "Library Walkway", position: "8 1.7 8", rotation: "0 90 0" },
+          { label: "Library Plaza", position: "15 1.7 9", rotation: "0 70 0" },
+          { label: "Arrived at Library", position: "20 1.7 16", rotation: "0 0 0" }
+        ]
+      }
+    };
+
+    let currentRoute = roomData.B205.route;
+    let currentStep = 0;
+    let currentRotationY = 180;
+
+    function togglePassword() {
+      const password = document.getElementById("password");
+      password.type = password.type === "password" ? "text" : "password";
+    }
+
+    function loginUser(event) {
+      event.preventDefault();
+
+      const role = document.querySelector('input[name="role"]:checked').value;
+
+      document.getElementById("homePage").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      document.getElementById("dashboardTitle").innerText = role + " Dashboard";
+
+      setTimeout(() => {
+        resetVRRoute();
+      }, 500);
+
+      window.scrollTo(0, 0);
+    }
+
+    function logoutUser() {
+      document.getElementById("homePage").style.display = "block";
+      document.getElementById("dashboard").style.display = "none";
+      window.scrollTo(0, 0);
+    }
+
+    function getSelectedRoom() {
+      return document.getElementById("destinationRoom").value;
+    }
+
+    function updateNavigationPreview() {
+      const room = getSelectedRoom();
+      const selected = roomData[room];
+
+      document.getElementById("distanceText").innerText = "--";
+      document.getElementById("etaText").innerText = "--";
+      document.getElementById("statusText").innerText = "Ready";
+      document.getElementById("floorText").innerText = selected.floor;
+      document.getElementById("highlightRoom").innerText = selected.label;
+      document.getElementById("vrDestinationText").setAttribute("value", selected.destinationText);
+
+      currentRoute = selected.route;
+      currentStep = 0;
+      moveVRToStep();
+    }
+
+    function startNavigation() {
+      const room = getSelectedRoom();
+      const selected = roomData[room];
+
+      document.getElementById("distanceText").innerText = selected.distance;
+      document.getElementById("etaText").innerText = selected.eta;
+      document.getElementById("statusText").innerText = "Navigating";
+      document.getElementById("floorText").innerText = selected.floor;
+      document.getElementById("highlightRoom").innerText = selected.label;
+
+      currentRoute = selected.route;
+      currentStep = 0;
+      moveVRToStep();
+
+      alert(
+        "Navigation started to " +
+        selected.label +
+        ". Distance: " +
+        selected.distance +
+        ". Estimated time: " +
+        selected.eta +
+        ". Use the VR direction arrows to move forward."
+      );
+    }
+
+    function moveVRToStep() {
+      const player = document.getElementById("playerRig");
+      const stepText = document.getElementById("vrStepText");
+
+      if (!player || !currentRoute[currentStep]) return;
+
+      const step = currentRoute[currentStep];
+      player.setAttribute("animation__move", {
+        property: "position",
+        to: step.position,
+        dur: 650,
+        easing: "easeInOutQuad"
+      });
+
+      player.setAttribute("animation__turn", {
+        property: "rotation",
+        to: step.rotation,
+        dur: 650,
+        easing: "easeInOutQuad"
+      });
+
+      currentRotationY = Number(step.rotation.split(" ")[1]);
+      stepText.innerText = "Step " + (currentStep + 1) + ": " + step.label;
+
+      if (step.label.toLowerCase().includes("arrived")) {
+        document.getElementById("statusText").innerText = "Arrived";
+      }
+    }
+
+    function moveForward() {
+      if (currentStep < currentRoute.length - 1) {
+        currentStep++;
+        moveVRToStep();
+      } else {
+        document.getElementById("vrStepText").innerText = "You have arrived at the destination.";
+        document.getElementById("statusText").innerText = "Arrived";
+      }
+    }
+
+    function moveBackward() {
+      if (currentStep > 0) {
+        currentStep--;
+        moveVRToStep();
+        document.getElementById("statusText").innerText = "Navigating";
+      }
+    }
+
+    function turnLeft() {
+      const player = document.getElementById("playerRig");
+      currentRotationY += 35;
+      player.setAttribute("rotation", "0 " + currentRotationY + " 0");
+    }
+
+    function turnRight() {
+      const player = document.getElementById("playerRig");
+      currentRotationY -= 35;
+      player.setAttribute("rotation", "0 " + currentRotationY + " 0");
+    }
+
+    function resetVRRoute() {
+      const room = getSelectedRoom();
+      currentRoute = roomData[room].route;
+      currentStep = 0;
+      document.getElementById("statusText").innerText = "Ready";
+      moveVRToStep();
+    }
+
+    function jumpToDestination() {
+      currentStep = currentRoute.length - 1;
+      moveVRToStep();
+      document.getElementById("statusText").innerText = "Arrived";
+    }
+  </script>
+</body>
+</html>
